@@ -3,19 +3,30 @@ const Schema = mongoose.Schema;
 
 const memberSchema = new Schema(
   {
-    id: String,
-    community: {
-      type: Schema.Types.ObjectId,
-      ref: "community_model",
+    id: {
+      type: String,
     },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "user_model",
-    },
-    role: {
-      type: Schema.Types.ObjectId,
-      ref: "role_model",
-    },
+    community: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "community_model",
+        required: true,
+      },
+    ],
+    user: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "user_model",
+        required: true,
+      },
+    ],
+    role: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "role_model",
+        required: true,
+      },
+    ],
   },
   {
     timestamps: { createdAt: "created_at" },

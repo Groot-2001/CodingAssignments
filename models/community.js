@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Snowflake } = require("@theinternetfolks/snowflake");
 const Schema = mongoose.Schema;
 
 const communitySchema = new Schema(
@@ -9,7 +10,6 @@ const communitySchema = new Schema(
     },
     name: {
       type: String,
-      minLength: [2, "Name should contain at least two characters!"],
       required: true,
     },
     slug: {
@@ -28,5 +28,16 @@ const communitySchema = new Schema(
     versionKey: false,
   }
 );
+
+communitySchema.pre("save", async function (next) {
+  //getting the current user object with the help of this
+  const community = this;
+
+  let randomNumber = await Snowflake.generate();
+
+  //then add the new unique id
+  community.id = randomNumber;
+  next();
+});
 
 module.exports = mongoose.model("community_model", communitySchema);

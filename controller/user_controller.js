@@ -35,13 +35,13 @@ exports.signUp = async (req, res) => {
     const savedUser = await user.save();
 
     //exclude unneccessary before populating the data
-    const { password, email, ...responseUser } = savedUser._doc;
+    const { password, email, _id, ...responseUser } = savedUser._doc;
 
     //generating the token
     const token = jwt.sign(responseUser, process.env.jwtSecretKey);
 
     //if all goes well then
-    res.status(200).json({
+    return res.status(200).json({
       status: true,
       content: {
         data: responseUser,
@@ -117,12 +117,12 @@ exports.signIn = async (req, res) => {
     }
 
     //exclude unneccessary before populating the data
-    const { password, ...responseUser } = doesExist._doc;
+    const { password, _id, ...responseUser } = doesExist._doc;
 
     //generating the token
     const token = jwt.sign(responseUser, process.env.jwtSecretKey);
 
-    res.status(200).json({
+    return res.status(200).json({
       status: true,
       content: {
         data: responseUser,
@@ -148,6 +148,39 @@ exports.signIn = async (req, res) => {
     }
 
     //if the error is not related to user
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.getMe = async (req, res) => {
+  try {
+    if (req.user) {
+      let data = await User.findOne({ email: req.user.email });
+
+      //exclude unneccessary before populating the data
+      const { password, updatedAt, ...responseUser } = data._doc;
+
+      return res.status(200).json({
+        status: true,
+        content: {
+          data: responseUser,
+        },
+      });
+    } else {
+      return res.status(401).json({
+        status: false,
+        errors: [
+          {
+            message: "You need to sign in to proceed.",
+            code: "NOT_SIGNEDIN",
+          },
+        ],
+      });
+    }
+  } catch (error) {
+    console.error(error);
     return res.status(500).json({
       message: "Internal Server Error",
     });

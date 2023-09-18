@@ -23,7 +23,31 @@ const signInValidate = Joi.object({
     .required(),
 });
 
+const makeCommunity = Joi.object({
+  name: Joi.string().min(3).required(),
+});
+
+const makeRole = Joi.object({
+  name: Joi.string().min(2).required(),
+});
+
+const makeMember = Joi.object({
+  community: Joi.string().empty().required(),
+  user: Joi.string().empty().required(),
+  role: Joi.string().empty().required(),
+});
+
+const removeMemeber = Joi.object({
+  params: Joi.object({
+    id: Joi.string().empty().required(),
+  }),
+});
+
 module.exports = {
   signUpValidate,
   signInValidate,
+  makeCommunity,
+  makeRole,
+  makeMember,
+  removeMemeber,
 };

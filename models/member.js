@@ -1,37 +1,44 @@
 const mongoose = require("mongoose");
+const { Snowflake } = require("@theinternetfolks/snowflake");
 const Schema = mongoose.Schema;
 
 const memberSchema = new Schema(
   {
-    id: {
-      type: String,
-    },
+    id: String,
     community: [
       {
         type: Schema.Types.ObjectId,
         ref: "community_model",
-        required: true,
       },
     ],
     user: [
       {
         type: Schema.Types.ObjectId,
         ref: "user_model",
-        required: true,
       },
     ],
     role: [
       {
         type: Schema.Types.ObjectId,
         ref: "role_model",
-        required: true,
       },
     ],
   },
   {
-    timestamps: { createdAt: "created_at" },
+    timestamps: { createdAt: true, updatedAt: false },
     versionKey: false,
   }
 );
+
+memberSchema.pre("save", async function (next) {
+  //getting the current user object with the help of this
+  const member = this;
+
+  let randomNumber = await Snowflake.generate();
+
+  //then add the new unique id
+  member.id = randomNumber;
+  next();
+});
 
 module.exports = mongoose.model("member_model", memberSchema);

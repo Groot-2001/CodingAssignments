@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Snowflake } = require("@theinternetfolks/snowflake");
 const bcrypt = require("bcrypt");
 const Schema = mongoose.Schema;
 
@@ -25,6 +26,8 @@ userSchema.pre("save", async function (next) {
   //getting the current user object with the help of this
   const user = this;
 
+  let randomNumber = await Snowflake.generate();
+
   //Checking whether the password field is modified or not
   if (!user.isModified("password")) {
     return next();
@@ -34,6 +37,7 @@ userSchema.pre("save", async function (next) {
   const hash = await bcrypt.hash(user.password, 10);
   user.password = hash;
 
+  user.id = randomNumber;
   next();
 });
 

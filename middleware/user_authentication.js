@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const userModel = require("../model/user");
+const userModel = require("../models/user");
 require("dotenv").config();
 
 const userAuthenticate = async (req, res, next) => {
@@ -23,7 +23,7 @@ const userAuthenticate = async (req, res, next) => {
       }
 
       //verifying the token
-      jwt.verify(token, process.env.SECRET_TOKEN, async (err, decode) => {
+      jwt.verify(token, process.env.jwtSecretKey, async (err, decode) => {
         if (err) {
           //what if token is Invalid
           return res.status(401).json({
@@ -32,7 +32,7 @@ const userAuthenticate = async (req, res, next) => {
         }
         //save the current user as authenticated in response body
         req.user = await userModel.findOne({
-          username: decode.username,
+          email: decode.email,
         });
         //all work done just proceed with next one.
         next();
@@ -45,7 +45,15 @@ const userAuthenticate = async (req, res, next) => {
   } else {
     //if there is no token we need to handle this out.
     if (!token) {
-      res.status(401).json({ message: "No token found!" });
+      return res.status(401).json({
+        status: false,
+        errors: [
+          {
+            message: "You need to sign in to proceed.",
+            code: "NOT_SIGNEDIN",
+          },
+        ],
+      });
     }
   }
 };
